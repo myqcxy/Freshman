@@ -1,0 +1,27 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: 俄罗斯 - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\Users\马亚卿\AppData\Local\Temp\RSP5C21.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Debug/俄罗斯.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\learn\俄罗斯方块源码\俄罗斯.c"
+]
+Creating command line "cl.exe @"C:\Users\马亚卿\AppData\Local\Temp\RSP5C21.tmp"" 
+<h3>Output Window</h3>
+Compiling...
+俄罗斯.c
+d:\vc6.0\microsoft visual studio\vc98\include\easyx.h(35) : fatal error C1189: #error :  EasyX is only for C++
+执行 cl.exe 时出错.
+
+
+
+<h3>Results</h3>
+俄罗斯.obj - 1 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

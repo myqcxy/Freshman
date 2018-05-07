@@ -1,0 +1,903 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct tushu    //图书结构体
+{
+    char num[20];   //编号
+    char bookname[20];  //书名
+    char auther[20];    //作者
+    char press[20]; //出版社
+    char type[20];  //类型
+    double time;    //时间
+    double price;   //价格
+    struct tushu *next;
+};
+struct student      //学生结构体
+{
+    int ID;     //学号
+    char code[20];      //密码
+    struct student *next;
+};
+FILE *fp;       //图书文件
+FILE *fp1;     //管理员信息文件
+FILE *fp2;      //学生信息文件
+
+void menu();        //管理员主菜单(管理员进入对图书及学生信息进行管理)
+void xsmenu();    //学生主菜单（学生可对图书信息，密码进行操作）
+void gfind();       //管理员查询(管理员可按一定的方式查询图书)
+void xsfind();    //学生查询（学生可按照一定的方式查询图书）
+void Findofname(struct tushu *head);    //按书名查询图书
+void Findofauther(struct tushu *head);     //按作者查询图书
+void Findofpress(struct tushu *head);      //按出版社查询图书
+void xsFindofname(struct tushu *head);    //学生按书名查询图书
+void xsFindofauther(struct tushu *head);     //学生按作者查询图书
+void xsFindofpress(struct tushu *head);      //学生按出版社查询图书
+void Revise(struct tushu *head);       //修改(管理员可对图书进行修改，并选择是否保存)
+void Delete(struct tushu *head,char m[20]);     //按编号删除(管理员可按编号删除图书)
+void xssecret(struct student *head1);   //学生权限(学生登陆所用)
+void xsmima(struct student *head1);      //学生密码修改(学生可对自己的密码进行修改)
+struct student * xscreate();    //从文件中创建学生信息(从文件中读出学生信息，建立学生链表)
+struct tushu * create();    //从文件中创建链表(从文件中读出信息，建立单链表)
+void fprint_(struct tushu *head);   //保存（可覆盖保存如修改，删除后用）
+int main(void)
+{
+    int i,j=0;
+    struct student *head1;
+    printf("\n\n");
+    printf("************************欢迎进入图书管理借阅系统************************\n\n");
+    printf("************************制作人:王芳芳************************\n\n");
+    printf("************************制作日期:2016.05************************\n\n");
+    printf("************************指导老师:程立************************\n\n");
+    printf("************************河南工业大学监制************************\n\n");
+    printf("************************按enter键继续************************\n\n");
+    getchar();
+there:
+    fflush(stdin);             //清空缓冲区，通常是为了确保后面的数据读取。
+    system("cls");             //执行控制台命令cls,就是cmd下面的cls,功能是清屏，清除所有显示的数据。
+    printf("\n\n\n1: 管理员登陆系统\n\n2: 学生登录系统\n\n0: 退出\n\n\n");
+    printf("************************请选择************************\n");
+    scanf("%d",&i);
+    if(i==0)
+    {
+        system("cls");
+        printf("\n\n\n\n************************************************************************\n\n\n\n");
+        printf("                  欢迎进入河南工业大学图书管理系统                  ");
+        printf("\n\n\n\n************************************************************************\n\n\n\n");
+        exit(0);
+    }
+    if(i==1)
+    {
+        system("cls");
+        menu();
+    }
+    else if(i==2)
+    {
+        system("cls");
+        head1=xscreate();
+        if(head1==NULL)
+        {
+            printf("暂没有学生信息，学生不能登录!\n");
+            system("pause");
+            system("cls");
+            main();
+        }
+        xsmenu();
+        //xssecret(head1);
+    }
+    else if(i==0)
+    {
+        printf("\n\n\n\n************************************************************************\n\n\n\n");
+        printf("                  欢迎进入河南工业大学图书管理系统                  \n");
+        printf("\n\n\n\n************************************************************************\n\n\n\n");
+        exit(0);
+    }
+    else
+    {
+        printf("\n\n输入错误,请重新输入！\n\n");
+        system("pause");
+        system("cls");
+        j++;
+        if(j==3)
+        {
+               system("cls");
+               printf("********************你输入的次数过多，自动退出!谢谢使用！\n");
+               system("pause");
+               exit(0);
+        }
+        goto there;
+    }
+    return 0;
+}
+void menu()        //管理员主菜单(管理员进入对图书及学生信息进行管理)
+{
+    int choice,n=0;
+    struct tushu *head=NULL;
+    struct student *head1,*p;
+    char m[15];
+there:
+    printf("*******************图书管理系统********************\n");
+    printf("\n[0]退出系统\t[1]帮助\t[2]查询\t[3]修改\t[4]删除\t[5]学生信息\n\n");
+    printf("********************请选择********************\n");
+    fflush(stdin);
+    head=create();
+    scanf("%d",&choice);
+    if(choice==1)
+    {
+        printf("没有内容\n\n\n");
+        system("pause");
+        system("cls");
+        menu();
+    }
+    else if(choice==2)
+    {
+        system("cls");
+        if(head==NULL)
+        {
+            printf("没有图书,请先加图书!\n");
+            system("pause");
+            system("cls");
+            menu();
+        }
+        gfind();
+    }
+    else if(choice==3)
+    {
+        system("cls");
+        if(head==NULL)
+        {
+            printf("没有图书,请先添加图书!\n");
+            system("pause");
+            system("cls");
+            menu();
+        }
+        Revise(head);
+    }
+    else if(choice==4)
+    {
+        if(head==NULL)
+        {
+            printf("没有图书,请先加图书!\n");
+            system("pause");
+            system("cls");
+            menu();
+        }
+        printf("请输入想要删除的图书编号!\n");
+        scanf("%s",m);
+        Delete(head,m);
+    }
+    else if(choice==5)
+    {
+        system("cls");
+        head1=xscreate();
+        if(head1==NULL)
+        {
+            printf("没有学生信息,请到userinfo.txt添加!\n");
+            system("pause");
+            system("cls");
+            menu();
+        }
+        for(p=head1;p!=NULL;p=p->next)
+        {
+            printf("学生学号   密码\n");
+            printf("%d    %s\n",p->ID,p->code);
+        }
+        system("pause");
+        system("cls");
+        menu();
+    }
+    else if(choice==0)
+    {
+        system("cls");
+        printf("*******************感谢用图书管理系统********************\n");
+        exit(0);
+    }
+    else
+    {
+        system("cls");
+        printf("******************输入错误，请重新输入!******************\n\n");
+        system("pause");
+        system("cls");
+        n++;
+        if(n==3)
+        {
+           printf("******************你错误次数太多，自动退出!******************\n\n");
+           printf("******************感谢使用图书馆里系统******************\n\n");
+           system("pause");
+           exit(0);
+        }
+        goto there;
+
+    }
+}
+void xsmenu()    //学生主菜单（学生可对图书，密码进行操作）
+{
+    struct tushu *head;
+    struct student *head1;
+    int choice,n=0;
+there:
+    printf("******************图书借阅系统******************\n");
+    printf("\n[0]退出系统\t[1]帮助\t[2]修改密码帮助\t[3]查询\n\n");
+    printf("******************请选择******************\n");
+    fflush(stdin);
+    head=create();
+    scanf("%d",&choice);
+    if(choice==1)
+    {
+        printf("没有内容!\n");
+        system("pause");
+        system("cls");
+        xsmenu();
+    }
+     else if(choice==2)
+    {
+        system("cls");
+        head1=xscreate();
+        if(head1==NULL)
+        {
+            printf("学生信息被清空！\n");
+            system("pause");
+            system("cls");
+            xsmenu();
+        }
+        xsmima(head1);
+    }
+    else if(choice==3)
+    {
+        if(head==NULL)
+        {
+            printf("没有图书！\n");
+            system("pause");
+            system("cls");
+            xsmenu();
+        }
+        xsfind();
+    }
+    else if(choice==0)
+    {
+        system("cls");
+        printf("\n\n\n\n");
+        printf("******************感谢使用图书管理系统******************\n");
+        exit(0);
+    }
+    else
+    {
+        system("cls");
+        printf("******************输入错误，请重新输入！******************\n");
+        system("pause");
+        system("cls");
+        n++;
+        if(n==3)
+        {
+            printf("******************错误次数太多，自动退出！******************\n\n");
+            printf("******************感谢使用图书管理系统******************\n");
+            system("pause");
+            exit(0);
+        }
+        goto there;
+    }
+}
+void gfind()       //管理员查询(管理员可按一定的方式查询图书)
+{
+    int choice,n=0;
+    struct tushu *head;
+there:
+    system("cls");
+    printf("******************图书馆借阅系统******************\n");
+    printf("[0]退出\t[1]按书名查询\t[2]按作者查询\t[3]按出版社查询\n");
+    printf("******************请选择******************\n");
+    fflush(stdin);
+    head=create();
+    scanf("%d",&choice);
+    if(choice==1)
+    {
+        system("cls");
+        Findofname(head);
+    }
+    else if(choice==2)
+    {
+        system("cls");
+        Findofauther(head);
+    }
+    else if(choice==3)
+    {
+        system("cls");
+        Findofpress(head);
+    }
+    else if(choice==0)
+    {
+        system("cls");
+        menu();
+    }
+    else
+    {
+        system("cls");
+        printf("******************输入错误，请重新输入!******************\n");
+        system("pause");
+        system("cls");
+        n++;
+        if(n==3)
+        {
+            printf("******************你错误次数太多，自动退出!******************\n");
+            printf("******************感谢使用图书管理系统******************\n");
+            system("pause");
+            exit(0);
+        }
+        goto there;
+    }
+}
+void xsfind()    //学生查询（学生可按照一定的方式查询图书）
+{
+    struct tushu *head;
+    int choice,n=0;
+there:
+    system("cls");
+    printf("******************图书馆借阅系统******************\n");
+    printf("\n[0]返回\t[1]按书名查询\t[2]按作者查询\t[3]按出版社查询\n");
+    printf("******************请选择：******************\n");
+    fflush(stdin);
+    head=create();
+    scanf("%d",&choice);
+    if(choice==1)
+    {
+        system("cls");
+        xsFindofname(head);
+    }
+    else if(choice==2)
+    {
+        system("cls");
+        xsFindofauther(head);
+    }
+    else if(choice==3)
+    {
+        system("cls");
+        xsFindofpress(head);
+    }
+    else if(choice==0)
+    {
+        system("cls");
+        xsmenu();
+    }
+    else
+    {
+        system("cls");
+        printf("        输入错误，请重新输入：     \n");
+        system("pause");
+        system("cls");
+        n++;
+        if(n==3)
+        {
+            printf("\n\n    错误次数太多，自动退出！        \n\n");
+            printf("******************感谢使用图书管理系统******************\n");
+            system("pause");
+            exit(0);
+        }
+        goto there;
+    }
+}
+void Findofname(struct tushu *head)    //按书名查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("请那个输入要查询的图书名称:\n");
+    scanf("%s",b);
+    while(p!=NULL)
+    {
+        if(strcmp(p->bookname,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+        system("cls");
+        printf("对不起！没有找到名为《%s》的图书\n",b);
+        system("pause");
+    }
+    printf("是否继续查找图书信息?(1.是/2.否(返回))：");
+    scanf("%d",&n);
+    if(n==1)
+        gfind();
+    else
+    {
+        system("cls");
+        menu();
+    }
+
+}
+void Findofauther(struct tushu *head)     //按作者查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("请输入要查询的图书作者姓名：\n");
+    scanf("%s",b);
+    while(p!=NULL)
+    {
+        if(strcmp(p->auther,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+     system("cls");
+     printf("对不起！没有找到'%s'所著的相关图书\n",b);
+     system("pause");
+    }
+    printf("是否继续查找图书信息?(1.是/2.否(返回)):");
+    scanf("%d",&n);
+    if(n==1)
+        gfind();
+        else
+        {
+            system("cls");
+            menu();
+        }
+}
+void Findofpress(struct tushu *head)      //按出版社查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("请输入你要查询图书的出版社:\n");
+    scanf("%s",b);
+    while(p!=NULL);
+    {
+        if(strcmp(p->press,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+        system("cls");
+        printf("对不起!没有找到出版社为'%s'的图书！\n",b);
+        system("pause");
+        printf("是否继续查找图书信息?(1.是/2.否（返回））:");
+        scanf("%d",&n);
+        if(n==1)
+            gfind();
+        else
+        {
+            system("cls");
+            menu();
+        }
+    }
+}
+void xsFindofname(struct tushu *head)    //学生按书名查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("\t请输入要查询的图书名称:\n");
+    scanf("%s",b);
+    while(p!=NULL)
+    {
+        if(strcmp(p->bookname,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+        system("cls");
+        printf("对不起，没有找到名为《%s》的图书！\n",b);
+        system("pause");
+    }
+    printf("是否继续查找图书信息？(1.是/2.否(返回)\n");
+    scanf("%d",&n);
+    if(n==1)
+        xsfind();
+        else
+        {
+            system("cls");
+            xsmenu();
+        }
+}
+void xsFindofauther(struct tushu *head)  //学生按作者查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("请输入要查询的图书作者姓名：\n");
+    scanf("%s",b);
+    while(p!=NULL)
+    {
+        if(strcmp(p->auther,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+        system("cls");
+        printf("对不起！没有找到'%s’所著的相关图书\n",b);
+        system("pause");
+    }
+        printf("是否继续查找图书信息？(1.是/2.否(返回)\n");
+        scanf("%d",&n);
+        if(n==1)
+            xsfind();
+        else
+        {
+            system("cls");
+            xsmenu();
+        }
+
+
+}
+void xsFindofpress(struct tushu *head)     //学生按出版社查询图书
+{
+    int i=0,n;
+    char b[20];
+    struct tushu *p;
+    p=head;
+    printf("请输入你要查询图书的出版社\n");
+    scanf("%s",b);
+    while(p!=NULL)
+    {
+        if(strcmp(p->press,b)==0)
+        {
+            printf("编号 书名 作者 出版社 类别 出版时间 价格\n");
+            printf("%s\t%s\t%s\t%s\t%s\t%.01f\t%.02f\n",p->num,p->bookname,p->auther,p->press,p->type,p->time,p->price);
+            i++;
+        }
+        p=p->next;
+    }
+    if(i==0)
+    {
+        system("cls");
+        printf("对不起！没有找到出版社为'%s'的图书！\n",b);
+        system("pause");
+        printf("是否继续查找图书信息？(1.是/2.否(返回)\n");
+        scanf("%d",&n);
+        if(n==1)
+            xsfind();
+        else
+        {
+            system("cls");
+            xsmenu();
+        }
+    }
+}
+void xssecret(struct student *head1)    //学生权限(学生登陆所用)
+{
+    struct student *p;
+    char mima[20];
+    int xuehao,i=0;
+there:
+    printf("请输入学号，按Enter结束!\n");
+    scanf("%d",&xuehao);
+    printf("请输入密码，按Enter结束!\n");
+    printf("初始化密码为111111\n");
+    scanf("%s",mima);
+    for(p=head1;p!=NULL;p=p->next)
+    {
+        if((xuehao==p->ID)&&strcmp(mima,p->code)==0)
+           {
+               system("cls");
+               xsmenu();
+           }
+    }
+    if(i==0)
+    {
+        printf("你输入的学号不存在或密码错误,请重新输入!\n");
+        system("pause");
+        system("cls");
+        goto there;
+    }
+}
+struct student *xscreate()     //从文件中创建学生信息(从文件中读出学生信息，建立学生链表)
+{
+    struct student *head1=NULL,*p,*p1,*p2;
+    if((fp2=fopen("userinfo.txt","r"))==NULL)
+    {
+        printf("File open error!\n");
+        exit(0);
+    }
+    while(!feof(fp2))
+    {
+        p=(struct student*)malloc(sizeof(struct student));
+        p->ID=-1;
+        fscanf(fp2,"%d%s",&p->ID,p->code);
+        if(p->ID==-1)
+        {
+            free(p);
+            break;
+        }
+        if(head1==NULL)
+        {
+            head1=p;
+            p1=p;
+            p1->next=NULL;
+        }
+        else
+        {
+            p1->next=p;
+            p2=p1;
+            p1=p;
+            p1->next=NULL;
+        }
+    }
+    fclose(fp2);
+    return head1;
+}
+void xsmima(struct student *head1)  //学生密码修改(学生)可对自己的密码进行修改
+{
+    struct student *p;
+    char pa[20],pb[20],pc[20];
+    int xuehao,i,j,k=0;
+    printf("请输入学号,按enter结束!\n");
+    scanf("%d",&xuehao);
+    printf("请输入你的密码,按enter结束!\n");
+    scanf("%s",pa);
+    for(p=head1;p!=NULL;p=p->next)
+    {
+        if(xuehao==p->ID&&(strcmp(pa,p->code)==0))
+            k=k+1;
+            break;
+    }
+        if(k==1)
+            {
+            printf("请输入新密码!\n");
+            scanf("%s",pb);
+            printf("请再次输入新密码!\n");
+            scanf("%s",pc);
+        if(strcmp(pb,pc)==0)
+           {
+            system("pause");
+            system("cls");
+            printf("是否确认修改,1是,2其他(返回)!\n");
+            scanf("%d",&i);
+            if(i==1)
+                {
+                printf("密码修改成功,请牢记!\n");
+                system("pause");
+                system("cls");
+                strcpy(p->code,pb);
+                if((fp2=fopen("userinfo.txt","w"))==NULL)
+                {
+                    printf("File open error!\n");
+                    exit(0);
+                }
+                for(p=head1;p!=NULL;p=p->next)
+                    fprintf(fp2,"%d %s\n",p->ID,p->code);
+                    if(fclose(fp2))
+                    {
+                        printf("Can not close the file!\n");
+                        exit(0);
+                    }
+                    system("cls");
+                    xsmenu();
+                }
+        else
+        {
+            printf("密码没有修改!\n");
+            xsmenu();
+        }
+    }
+    else
+    {
+        system("cls");
+        printf("你两次输入的密码不一致,请重新输入!\n");
+        system("pause");
+        system("cls");
+        printf("是否继续修改,1是,2其他(返回)!\n");
+        scanf("%d",&j);
+        if(j==1)
+        {
+            system("cls");
+            xsmima(head1);
+        }
+        else
+        {
+            system("cls");
+            xsmenu();
+        }
+    }
+}
+    else
+    {
+        printf("输入的学号或密码错误!\n");
+        system("pause");
+        system("cls");
+        xsmenu();
+    }
+
+}
+struct tushu *create()  //从文件中创建链表(从文件中读出信息，建立单链表)
+{
+    struct tushu *head=NULL,*p,*p1,*p2;
+    if((fp=fopen("bookinfo.txt","r"))==NULL)
+    {
+        printf("File open error!\n");
+        exit(0);
+    }
+    while(!feof(fp))    //读取并创建链表
+    {
+        p=(struct tushu *)malloc(sizeof(struct tushu));
+        p->price=-1;
+        fscanf(fp,"%s%s%s%s%s%lf%lf",p->num,p->bookname,p->auther,p->press,p->type,&p->time,&p->price);
+        if(p->price==-1)
+            {
+                free(p);
+                break;
+            }
+            if(head==NULL)
+            {
+                head=p;
+                p1=p;
+                p1->next=NULL;
+            }
+            else
+            {
+                p1->next=p;
+                p2=p1;
+                p1=p;
+                p1->next=NULL;
+            }
+    }
+    fclose(fp);
+    return head;
+}
+void fprint_(struct tushu *head)   //保存（可覆盖保存如修改，删除，排序后用）
+{
+    struct tushu *p1;
+    char a[20];
+    printf("请输入你保存的文件\n");
+    scanf("%s",a);
+    if((fp=fopen(a,"w"))==NULL)
+    {
+        printf("File open error!\n");
+        exit(0);
+    }
+    if(head==NULL)
+        {
+            system("pause");
+            system("cls");
+            menu();
+        }
+        for(p1=head;p1!=NULL;p1=p1->next)
+        {
+            fprintf(fp,"%s\t%s\t%s\t%s\t%s\t%.0lf\t%lf\n",p1->num,p1->bookname,p1->auther,p1->press,p1->type,p1->time,p1->price);
+            fclose(fp);
+            system("cls");
+            printf("图书信息已成功保存到文件%s中！\n",a);
+            system("pause");
+            system("cls");
+            menu();
+        }
+}
+void Revise(struct tushu *head)       //修改(管理员可对图书进行修改，并选择是否保存)
+{
+    struct tushu *p;
+    char bookname[20],auther[20],press[20],type[20];
+    double time,price;
+    int x=0,panduan=0;
+    char m[20];
+    p=head;
+    printf("请输入要修改的图书的编号:\n");
+    scanf("%s",m);
+    while(p!=NULL)
+    {
+        if(strcmp(p->num,m)==0)
+        {
+            printf("请依次输入书名 作者 出版社 类别 出版时间 价格\n");
+            scanf("%s%s%s%s%lf%lf",bookname,auther,press,type,&time,&price);
+            strcpy(p->bookname,bookname);
+            strcpy(p->auther,auther);
+            strcpy(p->press,press);
+            strcpy(p->type,type);
+            p->time=time;
+            p->price=price;
+            printf("\n");
+            panduan=1;
+
+        }
+        p=p->next;
+    }
+    if(panduan==0)
+    {
+        printf("没有图书记录！\n");
+        system("pause");
+        system("cls");
+        menu();
+    }
+    else
+        printf("\n编号为'%s'目标图书已被修改！\n",m);
+        printf("是否保存图书信息?(1:是/2：否(返回):");
+        if(x==1)
+            fprint_(head);
+        else
+            system("cls");
+        printf("没有被保存到文件！\n");
+        system("pause");
+        system("cls");
+        menu();
+        return;
+}
+void Delete(struct tushu *head,char m[20])     //按编号删除(管理员可按编号删除图书)
+{
+    struct tushu *ptr1,*ptr2;
+    int x,n=0;
+    if((strcmp(head->num,m)==0)&&head->next==NULL)
+    {
+        printf("删除成功!\n");
+        system("pause");
+        system("cls");
+        head=NULL;
+        fprint_(head);
+    }
+    while((strcmp(head->num,m)==0)&&head!=NULL)
+    {
+        ptr2=head;
+        head=head->next;
+        n++;
+        free(ptr2);
+    }
+    if(head==NULL)
+    {
+        printf("已无图书信息!\n");
+        menu();
+    }
+    ptr1=head;
+    ptr2=head->next;
+    while(ptr2!=NULL)
+    {
+        if(strcmp(ptr2->num,m)==0)
+        {
+            ptr1->next=ptr2->next;
+            n++;
+            free(ptr2);
+        }
+        else
+            ptr1=ptr2;
+            ptr2=ptr1->next;
+   if(n==0)
+    {
+        system("cls");
+        printf("没有你要删除的图书!\n");
+        system("pause");
+        system("cls");
+        menu();
+        return;
+    }
+    else
+        printf("编号为'%s'目标图书已被删除，并保存至文件！\n",m);
+        printf("是否保存图书信息?(1.是/2.否（返回)：");
+        scanf("%d",&x);
+        if(x==1)
+            fprint_(head);
+        else
+            system("cls");
+            printf("并没有被保存到文件中！\n");
+            system("pause");
+            system("cls");
+            menu();
+            return;
+    }
+
+
+}

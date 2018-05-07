@@ -1,0 +1,52 @@
+#include<stdio.h>
+#include<stdlib.h>
+typedef struct node
+{
+	int date;
+	struct node *lch,*rch;
+}BinNode,*BinTree;
+BinTree creatbitree();
+void travelbitree(BinTree T);
+int main()
+{
+	BinTree T;
+	T=creatbitree();
+	travelbitree(T);
+	
+	
+	
+	return 0;
+}
+void travelbitree(BinTree T)
+{
+
+	if(T)
+	{
+			
+		printf("%d", T->date); 
+		travelbitree(T->lch);
+		travelbitree(T->rch);
+	}
+} 
+BinTree creatbitree()
+{
+	BinTree T;
+	int n;
+	scanf("%d", &n);
+	
+	if(n==-1) T=NULL;
+	
+	else{
+		T=(BinTree)malloc(sizeof(BinNode));
+		T->date=n;
+		T->lch=creatbitree();
+		T->rch=creatbitree();
+	}
+	return T;
+}
+
+
+
+
+
+
